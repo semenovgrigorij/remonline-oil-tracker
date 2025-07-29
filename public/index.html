@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Мониторинг использования моторного масла</title>
+    <link rel="stylesheet" href="./css/style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>🛢️ Мониторинг моторных масел</h1>
+        <p>
+          Отслеживание использования трех типов моторного масла в заказах
+          Remonline
+        </p>
+        <div
+          style="
+            margin-top: 15px;
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            font-size: 14px;
+          "
+        >
+          <div style="display: flex; align-items: center; gap: 5px">
+            <span
+              style="
+                width: 12px;
+                height: 12px;
+                background: #4caf50;
+                border-radius: 50%;
+                display: inline-block;
+              "
+            ></span>
+            <span>5W30 SKY (ID: 29400883)</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 5px">
+            <span
+              style="
+                width: 12px;
+                height: 12px;
+                background: #2196f3;
+                border-radius: 50%;
+                display: inline-block;
+              "
+            ></span>
+            <span>5W30 DIESEL Master SKY (ID: 30262242)</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 5px">
+            <span
+              style="
+                width: 12px;
+                height: 12px;
+                background: #ff9800;
+                border-radius: 50%;
+                display: inline-block;
+              "
+            ></span>
+            <span>5W40 SKY (ID: 29400905)</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="controls">
+        <h3>📅 Период анализа</h3>
+        <div class="control-group">
+          <label for="year">Год:</label>
+          <select id="year">
+            <option value="2025">2025</option>
+            <option value="2024">2024</option>
+            <option value="2023">2023</option>
+          </select>
+
+          <label for="month">Месяц:</label>
+          <select id="month">
+            <option value="">Весь год</option>
+            <option value="1">Январь</option>
+            <option value="2">Февраль</option>
+            <option value="3">Март</option>
+            <option value="4">Апрель</option>
+            <option value="5">Май</option>
+            <option value="6">Июнь</option>
+            <option value="7">Июль</option>
+            <option value="8">Август</option>
+            <option value="9">Сентябрь</option>
+            <option value="10">Октябрь</option>
+            <option value="11">Ноябрь</option>
+            <option value="12">Декабрь</option>
+          </select>
+
+          <button class="btn" onclick="analyzeOilUsage()">
+            🔍 Анализировать
+          </button>
+        </div>
+        <div
+          style="
+            margin-top: 15px;
+            padding: 10px;
+            background: #f0f8ff;
+            border-radius: 5px;
+            font-size: 14px;
+            color: #2c5282;
+          "
+        >
+          <strong>ℹ️ Логика выбора периода:</strong><br />
+          • <strong>Весь год</strong> - анализ с 1 января по 31 декабря
+          выбранного года<br />
+          • <strong>Конкретный месяц</strong> - анализ только за выбранный месяц
+          (например, март: с 1 по 31 марта)
+        </div>
+      </div>
+
+      <div id="loading" class="loading" style="display: none">
+        <div class="spinner"></div>
+        <div id="loading-text">Загрузка данных...</div>
+        <div
+          id="loading-details"
+          style="margin: 10px 0; font-size: 14px; color: #666"
+        ></div>
+        <div class="progress">
+          <div class="progress-bar" id="progress-bar" style="width: 0%"></div>
+        </div>
+        <div
+          id="progress-text"
+          style="margin-top: 10px; font-size: 14px; font-weight: bold"
+        ></div>
+      </div>
+
+      <div id="error" class="error" style="display: none"></div>
+
+      <div id="results" class="results" style="display: none">
+        <h3>📊 Результаты анализа</h3>
+        <div class="summary">
+          <div class="summary-card">
+            <h4>Общий объем масла</h4>
+            <div class="value" id="total-quantity">0 л</div>
+          </div>
+          <div class="summary-card">
+            <h4>Заказов с маслом</h4>
+            <div class="value" id="orders-with-oil">0</div>
+          </div>
+          <div class="summary-card">
+            <h4>Обработано заказов</h4>
+            <div class="value" id="processed-orders">0</div>
+          </div>
+          <div class="summary-card">
+            <h4>Период</h4>
+            <div class="value" id="period">-</div>
+          </div>
+          <div class="summary-card" id="errors-card" style="display: none">
+            <h4>Ошибок обработки</h4>
+            <div class="value" id="errors-count">0</div>
+          </div>
+        </div>
+
+        <!-- Детальная разбивка по типам масла -->
+        <div id="oil-breakdown" style="margin-bottom: 30px">
+          <h4>📊 Разбивка по типам масла</h4>
+          <div
+            class="oil-types-grid"
+            style="
+              display: grid;
+              grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+              gap: 20px;
+              margin-top: 20px;
+            "
+          >
+            <div
+              class="oil-type-card"
+              id="oil-29400883"
+              style="
+                background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+                color: white;
+                padding: 20px;
+                border-radius: 10px;
+              "
+            >
+              <h5 style="margin: 0 0 10px 0; font-size: 16px">5W30 SKY</h5>
+              <div
+                style="font-size: 24px; font-weight: bold"
+                id="quantity-29400883"
+              >
+                0 л
+              </div>
+              <div style="font-size: 14px; opacity: 0.9" id="orders-29400883">
+                0 заказов
+              </div>
+            </div>
+            <div
+              class="oil-type-card"
+              id="oil-30262242"
+              style="
+                background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+                color: white;
+                padding: 20px;
+                border-radius: 10px;
+              "
+            >
+              <h5 style="margin: 0 0 10px 0; font-size: 16px">
+                5W30 DIESEL Master SKY
+              </h5>
+              <div
+                style="font-size: 24px; font-weight: bold"
+                id="quantity-30262242"
+              >
+                0 л
+              </div>
+              <div style="font-size: 14px; opacity: 0.9" id="orders-30262242">
+                0 заказов
+              </div>
+            </div>
+            <div
+              class="oil-type-card"
+              id="oil-29400905"
+              style="
+                background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+                color: white;
+                padding: 20px;
+                border-radius: 10px;
+              "
+            >
+              <h5 style="margin: 0 0 10px 0; font-size: 16px">5W40 SKY</h5>
+              <div
+                style="font-size: 24px; font-weight: bold"
+                id="quantity-29400905"
+              >
+                0 л
+              </div>
+              <div style="font-size: 14px; opacity: 0.9" id="orders-29400905">
+                0 заказов
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="orders-details">
+          <h4>📋 Детали заказов с моторным маслом</h4>
+          <table class="orders-table">
+            <thead>
+              <tr>
+                <th>ID заказа</th>
+                <th>Номер заказа</th>
+                <th>Дата создания</th>
+                <th>Общий объем масла</th>
+                <th>Типы масла</th>
+                <th>Статус</th>
+                <th>Примерная стоимость</th>
+              </tr>
+            </thead>
+            <tbody id="orders-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="./script.js"></script>
+  </body>
+</html>
