@@ -412,7 +412,19 @@ app.get("/api/oil-usage", async (req, res) => {
     let dateFilter;
     let periodLabel;
 
-    if (month) {
+    if (year === "all") {
+      // Весь период - от 2020 года до сегодня
+      const startDate = "2020-01-01T00:00:00Z";
+      const currentDate = new Date();
+      const endDate = currentDate.toISOString();
+
+      dateFilter = [startDate, endDate];
+      periodLabel = "Весь период";
+
+      console.log(
+        `Fetching orders for ${periodLabel}: ${startDate} - ${endDate}`,
+      );
+    } else if (month) {
       // Конкретный месяц - устанавливаем диапазон от начала до конца месяца
       const monthNum = parseInt(month);
       const startDate = `${year}-${monthNum.toString().padStart(2, "0")}-01T00:00:00Z`;

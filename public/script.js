@@ -325,11 +325,18 @@ function hideError() {
 // Автоматически устанавливаем текущий месяц и инициализируем сокет
 document.addEventListener("DOMContentLoaded", function () {
   // Генерируем список годов динамически
+  // Генерируем список годов динамически
   const yearSelect = document.getElementById("year");
   const currentYear = new Date().getFullYear();
 
+  // Добавляем опцию "Весь период"
+  const allPeriodOption = document.createElement("option");
+  allPeriodOption.value = "all";
+  allPeriodOption.textContent = "Весь период";
+  yearSelect.appendChild(allPeriodOption);
+
   // Добавляем текущий год и предыдущие 5 лет
-  for (let year = currentYear; year >= currentYear - 3; year--) {
+  for (let year = currentYear; year >= currentYear - 5; year--) {
     const option = document.createElement("option");
     option.value = year;
     option.textContent = year;
