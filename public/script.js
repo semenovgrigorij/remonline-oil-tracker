@@ -125,7 +125,34 @@ function updateProgress(data) {
                 ${oilBreakdownInfo}
             `;
 }
+function filterByOilType(data, selectedOilId) {
+  if (!selectedOilId) {
+    return data;
+  }
 
+  // Приводим selectedOilId к строке для корректного поиска
+  const oilIdStr = selectedOilId.toString();
+
+  // Фильтруем заказы, оставляя только те, где есть выбранное масло
+  const filteredOrders = data.ordersWithOil.filter((order) => {
+    return order.oilsByType && order.oilsByType[oilIdStr] > 0;
+  });
+
+  // Пересчитываем статистику для выбранного масла
+  let totalQuantity = 0;
+  filteredOrders.forEach((order) => {
+    totalQuantity += order.oilsByType[oilIdStr] || 0;
+  });
+
+  return {
+    ...data,
+    ordersWithOil: filteredOrders,
+    totalQuantity: totalQuantity,
+    processedOrders: data.processedOrders,
+    selectedOilId: oilIdStr,
+    selectedOilName: data.oilBreakdown[oilIdStr]?.name || "Unknown",
+  };
+}
 function resetProgress() {
   const progressBar = document.getElementById("progress-bar");
   const progressText = document.getElementById("progress-text");
@@ -141,6 +168,11 @@ function updateLoadingText(text) {
 }
 
 function displayResults(data) {
+  // Применяем фильтр по типу масла если выбран
+  const selectedOilId = document.getElementById("oilFilter").value;
+  if (selectedOilId) {
+    data = filterByOilType(data, selectedOilId);
+  }
   // Обновляем сводку
   document.getElementById("total-quantity").textContent =
     `${data.totalQuantity.toFixed(2)} л`;
@@ -264,7 +296,7 @@ function getOilShortName(oilId) {
     29400905: "5W40",
     39724113: "75W90",
   };
-  return oilMap[oilId] || "Unknown";
+  return oilMap[oilId.toString()] || "Unknown";
 }
 
 function getOilColor(oilId) {
@@ -274,7 +306,7 @@ function getOilColor(oilId) {
     29400905: "#FF9800",
     39724113: "#9C27B0",
   };
-  return colorMap[oilId] || "#666";
+  return colorMap[oilId.toString()] || "#666";
 }
 
 function showLoading() {
