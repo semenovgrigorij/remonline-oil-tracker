@@ -250,27 +250,22 @@ async function getOrders(dateFilter, socketId = null) {
     console.log("🔍 Начинаем получение заказов с пагинацией...");
 
     while (hasMorePages) {
-      // Формируем URL с параметрами пагинации
-      const params = new URLSearchParams({
-        branches: BRANCH_ID,
-        page: page.toString(),
-        page_size: "100", // Увеличиваем до максимума для меньшего количества запросов
-      });
+      // Строим URL вручную для корректной передачи параметров
+      let url = `${API_BASE}/orders?branches=${BRANCH_ID}&page=${page}&page_size=100`;
 
       // Добавляем фильтр даты согласно документации API
       if (Array.isArray(dateFilter)) {
         dateFilter.forEach((date) => {
-          params.append("created_at[]", date);
+          url += `&created_at[]=${encodeURIComponent(date)}`;
         });
       } else {
-        params.append("created_at[]", dateFilter);
+        url += `&created_at[]=${encodeURIComponent(dateFilter)}`;
       }
-
-      const url = `${API_BASE}/orders?${params.toString()}`;
 
       console.log(
         `📄 Запрашиваем страницу ${page}${totalPages > 1 ? ` из ${totalPages}` : ""}...`,
       );
+      console.log(`📡 API URL: ${url}`);
 
       // Отправляем статус через WebSocket
       if (socketId) {
