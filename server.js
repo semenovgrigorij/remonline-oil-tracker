@@ -101,7 +101,7 @@ async function getOrderItems(orderId, retries = 3) {
 }
 
 // Функция для анализа использования масла с прогрессом
-async function analyzeOilUsage(orders, socketId = null) {
+async function analyzeOilUsage(orders, socketId = null, selectedOilId = null) {
   const results = {
     totalQuantity: 0,
     ordersWithOil: [],
@@ -148,6 +148,11 @@ async function analyzeOilUsage(orders, socketId = null) {
         });
 
         for (const item of items) {
+          // Если выбран конкретный тип масла, пропускаем другие
+          if (selectedOilId && item.entity.id.toString() !== selectedOilId) {
+            continue;
+          }
+
           if (item.entity && OIL_PRODUCTS[item.entity.id]) {
             const quantity = parseFloat(item.quantity) || 0;
             const oilId = item.entity.id.toString();
@@ -268,7 +273,9 @@ async function getOrders(dateFilter, socketId = null) {
       const url = `${API_BASE}/orders?${params.toString()}`;
 
       console.log(
-        `📄 Запрашиваем страницу ${page}${totalPages > 1 ? ` из ${totalPages}` : ""}...`,
+        `📄 Запрашиваем страницу ${page}${
+          totalPages > 1 ? ` из ${totalPages}` : ""
+        }...`,
       );
       console.log(`📡 API URL: ${url}`);
 
@@ -277,7 +284,9 @@ async function getOrders(dateFilter, socketId = null) {
         const progressPercent =
           totalPages > 1 ? Math.round((page / totalPages) * 100) : 0;
         io.to(socketId).emit("status", {
-          message: `Загружаем заказы... Страница ${page}${totalPages > 1 ? ` из ${totalPages}` : ""}`,
+          message: `Загружаем заказы... Страница ${page}${
+            totalPages > 1 ? ` из ${totalPages}` : ""
+          }`,
           stage: "fetching_orders",
           progress: progressPercent,
           details: {
@@ -313,7 +322,9 @@ async function getOrders(dateFilter, socketId = null) {
       allOrders = allOrders.concat(data.data || []);
 
       console.log(
-        `✅ Страница ${page}: получено ${data.data ? data.data.length : 0} заказов (всего: ${allOrders.length})`,
+        `✅ Страница ${page}: получено ${
+          data.data ? data.data.length : 0
+        } заказов (всего: ${allOrders.length})`,
       );
 
       // Проверяем, есть ли еще страницы
@@ -325,7 +336,9 @@ async function getOrders(dateFilter, socketId = null) {
     }
 
     console.log(
-      `🎯 Завершено! Получено ${allOrders.length} заказов со всех ${page - 1} страниц`,
+      `🎯 Завершено! Получено ${allOrders.length} заказов со всех ${
+        page - 1
+      } страниц`,
     );
     return allOrders;
   } catch (error) {
@@ -337,11 +350,12 @@ async function getOrders(dateFilter, socketId = null) {
 // API маршрут для получения данных об использовании масла
 app.get("/api/oil-usage", async (req, res) => {
   try {
-    const { year, month } = req.query;
+    const { year, month, oilFilter } = req.query;
 
     console.log("🔍 DEBUG - Received params:", {
       year,
       month,
+      oilFilter,
       yearType: typeof year,
     });
     const socketId = req.headers["socket-id"];
@@ -372,12 +386,16 @@ app.get("/api/oil-usage", async (req, res) => {
     } else if (month) {
       // Конкретный месяц - устанавливаем диапазон от начала до конца месяца
       const monthNum = parseInt(month);
-      const startDate = `${year}-${monthNum.toString().padStart(2, "0")}-01T00:00:00Z`;
+      const startDate = `${year}-${monthNum
+        .toString()
+        .padStart(2, "0")}-01T00:00:00Z`;
 
       // Вычисляем последний день месяца
       const nextMonth = monthNum === 12 ? 1 : monthNum + 1;
       const nextYear = monthNum === 12 ? parseInt(year) + 1 : parseInt(year);
-      const endDate = `${nextYear}-${nextMonth.toString().padStart(2, "0")}-01T00:00:00Z`;
+      const endDate = `${nextYear}-${nextMonth
+        .toString()
+        .padStart(2, "0")}-01T00:00:00Z`;
 
       dateFilter = [startDate, endDate];
 
@@ -434,7 +452,7 @@ app.get("/api/oil-usage", async (req, res) => {
       });
     }
 
-    const results = await analyzeOilUsage(orders, socketId);
+    const results = await analyzeOilUsage(orders, socketId, oilFilter);
 
     res.json({
       success: true,

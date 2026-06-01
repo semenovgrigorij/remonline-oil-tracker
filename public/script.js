@@ -49,6 +49,7 @@ function initSocket() {
 async function analyzeOilUsage() {
   const year = document.getElementById("year").value;
   const month = document.getElementById("month").value;
+  const oilFilter = document.getElementById("oilFilter").value; // ДОБАВЬТЕ ЭТУ СТРОКУ
 
   // Проверка что год выбран
   if (!year) {
@@ -63,9 +64,13 @@ async function analyzeOilUsage() {
 
   try {
     const params = new URLSearchParams();
-    params.append("year", year); // Добавляем явно
+    params.append("year", year);
     if (month) {
       params.append("month", month);
+    }
+    if (oilFilter) {
+      // ДОБАВЬТЕ УСЛОВИЕ
+      params.append("oilFilter", oilFilter);
     }
 
     const response = await fetch(`/api/oil-usage?${params}`, {
