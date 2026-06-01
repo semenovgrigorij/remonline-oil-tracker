@@ -87,9 +87,16 @@
           <option value="12">Декабрь</option>
         </select>
 
-        <button class="btn" onclick="analyzeOilUsage()">
-          🔍 Анализировать
-        </button>
+        <label for="oilFilter">Тип масла:</label>
+        <select id="oilFilter">
+          <option value="">Все масла</option>
+          <option value="29400883">5W30 SKY</option>
+          <option value="30262242">5W30 DIESEL Master SKY</option>
+          <option value="29400905">5W40 SKY</option>
+          <option value="39724113">75W90 SKY</option>
+        </select>
+
+        <button class="btn" onclick="analyzeOilUsage()">🔍 Анализировать</button>
       </div>
       <div style="
             margin-top: 15px;
