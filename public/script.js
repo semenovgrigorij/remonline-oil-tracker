@@ -54,13 +54,20 @@ async function analyzeOilUsage() {
   const year = document.getElementById("year").value;
   const month = document.getElementById("month").value;
 
+  // Проверка что год выбран
+  if (!year) {
+    showError('Пожалуйста, выберите год или "Весь период"');
+    return;
+  }
+
   showLoading();
   hideResults();
   hideError();
   resetProgress();
 
   try {
-    const params = new URLSearchParams({ year });
+    const params = new URLSearchParams();
+    params.append("year", year); // Добавляем явно
     if (month) {
       params.append("month", month);
     }

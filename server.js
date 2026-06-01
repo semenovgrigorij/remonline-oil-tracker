@@ -406,8 +406,16 @@ async function getOrders(dateFilter, socketId = null) {
 // API маршрут для получения данных об использовании масла
 app.get("/api/oil-usage", async (req, res) => {
   try {
-    const { year, month } = req.query;
+    let { year, month } = req.query;
     const socketId = req.headers["socket-id"];
+
+    // Проверяем параметры
+    if (!year) {
+      return res.status(400).json({
+        success: false,
+        error: "Не указан год",
+      });
+    }
 
     let dateFilter;
     let periodLabel;
