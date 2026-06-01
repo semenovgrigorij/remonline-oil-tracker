@@ -129,6 +129,9 @@ function filterByOilType(data, selectedOilId) {
     return data;
   }
 
+  console.log("🔍 Filtering for oilId:", selectedOilId);
+  console.log("Total orders before filter:", data.ordersWithOil.length);
+
   // Приводим selectedOilId к строке для корректного поиска
   const oilIdStr = selectedOilId.toString();
 
@@ -136,6 +139,8 @@ function filterByOilType(data, selectedOilId) {
   const filteredOrders = data.ordersWithOil.filter((order) => {
     return order.oilsByType && order.oilsByType[oilIdStr] > 0;
   });
+
+  console.log("Total orders after filter:", filteredOrders.length);
 
   // Пересчитываем статистику для выбранного масла
   let totalQuantity = 0;
@@ -325,34 +330,6 @@ function hideError() {
   document.getElementById("error").style.display = "none";
 }
 
-function filterByOilType(data, selectedOilId) {
-  if (!selectedOilId) {
-    return data;
-  }
-
-  // Приводим selectedOilId к строке для корректного поиска
-  const oilIdStr = selectedOilId.toString();
-
-  // Фильтруем заказы, оставляя только те, где есть выбранное масло
-  const filteredOrders = data.ordersWithOil.filter((order) => {
-    return order.oilsByType && order.oilsByType[oilIdStr] > 0;
-  });
-
-  // Пересчитываем статистику для выбранного масла
-  let totalQuantity = 0;
-  filteredOrders.forEach((order) => {
-    totalQuantity += order.oilsByType[oilIdStr] || 0;
-  });
-
-  return {
-    ...data,
-    ordersWithOil: filteredOrders,
-    totalQuantity: totalQuantity,
-    processedOrders: data.processedOrders,
-    selectedOilId: oilIdStr,
-    selectedOilName: data.oilBreakdown[oilIdStr]?.name || "Unknown",
-  };
-}
 // Автоматически устанавливаем текущий месяц и инициализируем сокет
 document.addEventListener("DOMContentLoaded", function () {
   // Генерируем список годов динамически
