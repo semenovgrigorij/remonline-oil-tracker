@@ -172,15 +172,17 @@ function displayResults(data) {
   if (selectedOilId) {
     data = filterByOilType(data, selectedOilId);
   }
-  // Обновляем сводку
-  document.getElementById(
-    "total-quantity",
-  ).textContent = `${data.totalQuantity.toFixed(2)} л`;
-  document.getElementById("orders-with-oil").textContent =
-    data.ordersWithOil.length;
-  document.getElementById("processed-orders").textContent =
-    data.processedOrders;
-  document.getElementById("period").textContent = data.period;
+
+  // Обновляем сводку - с проверкой наличия элементов
+  const totalQtyEl = document.getElementById("total-quantity");
+  const ordersOilEl = document.getElementById("orders-with-oil");
+  const processedEl = document.getElementById("processed-orders");
+  const periodEl = document.getElementById("period");
+
+  if (totalQtyEl) totalQtyEl.textContent = `${data.totalQuantity.toFixed(2)} л`;
+  if (ordersOilEl) ordersOilEl.textContent = data.ordersWithOil.length;
+  if (processedEl) processedEl.textContent = data.processedOrders;
+  if (periodEl) periodEl.textContent = data.period;
 
   // Показываем ошибки если они есть
   const errorsCard = document.getElementById("errors-card");
@@ -192,20 +194,6 @@ function displayResults(data) {
       "linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%)";
   } else {
     errorsCard.style.display = "none";
-  }
-
-  // Обновляем разбивку по типам масла
-  if (data.oilBreakdown) {
-    Object.keys(data.oilBreakdown).forEach((oilId) => {
-      const oilData = data.oilBreakdown[oilId];
-      const quantityEl = document.getElementById(`quantity-${oilId}`);
-      const ordersEl = document.getElementById(`orders-${oilId}`);
-
-      if (quantityEl && ordersEl) {
-        quantityEl.textContent = `${oilData.totalQuantity.toFixed(2)} л`;
-        ordersEl.textContent = `${oilData.ordersCount} заказов`;
-      }
-    });
   }
 
   // Заполняем таблицу заказов
