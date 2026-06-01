@@ -174,9 +174,21 @@ function updateLoadingText(text) {
 function displayResults(data) {
   // Применяем фильтр по типу масла если выбран
   const selectedOilId = document.getElementById("oilFilter").value;
+  console.log("🔍 displayResults - selectedOilId:", selectedOilId);
+  console.log(
+    "🔍 displayResults - data.ordersWithOil.length before:",
+    data.ordersWithOil.length,
+  );
+
   if (selectedOilId) {
+    console.log("🔍 Calling filterByOilType...");
     data = filterByOilType(data, selectedOilId);
   }
+
+  console.log(
+    "🔍 displayResults - data.ordersWithOil.length after:",
+    data.ordersWithOil.length,
+  );
 
   // Обновляем сводку - с проверкой наличия элементов
   const totalQtyEl = document.getElementById("total-quantity");
