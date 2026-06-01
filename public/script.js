@@ -49,8 +49,7 @@ function initSocket() {
 async function analyzeOilUsage() {
   const year = document.getElementById("year").value;
   const month = document.getElementById("month").value;
-  const oilFilter = document.getElementById("oilFilter").value; // ДОБАВЬТЕ ЭТУ СТРОКУ
-
+  const oilFilter = document.getElementById("oilFilter").value;
   // Проверка что год выбран
   if (!year) {
     showError('Пожалуйста, выберите год или "Весь период"');
@@ -69,7 +68,6 @@ async function analyzeOilUsage() {
       params.append("month", month);
     }
     if (oilFilter) {
-      // ДОБАВЬТЕ УСЛОВИЕ
       params.append("oilFilter", oilFilter);
     }
 
