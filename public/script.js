@@ -255,6 +255,7 @@ function getOilShortName(oilId) {
     29400883: "5W30",
     30262242: "5W30 DIESEL",
     29400905: "5W40",
+    39724113: "75W90",
   };
   return oilMap[oilId] || "Unknown";
 }
@@ -264,6 +265,7 @@ function getOilColor(oilId) {
     29400883: "#4CAF50",
     30262242: "#2196F3",
     29400905: "#FF9800",
+    39724113: "#9C27B0",
   };
   return colorMap[oilId] || "#666";
 }
@@ -274,6 +276,7 @@ function getOilShortName(oilId) {
     29400883: "5W30",
     30262242: "5W30 DIESEL",
     29400905: "5W40",
+    39724113: "75W90",
   };
   return oilMap[oilId] || "Unknown";
 }
@@ -283,6 +286,7 @@ function getOilColor(oilId) {
     29400883: "#4CAF50",
     30262242: "#2196F3",
     29400905: "#FF9800",
+    39724113: "#9C27B0",
   };
   return colorMap[oilId] || "#666";
 }
