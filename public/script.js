@@ -277,30 +277,6 @@ function getOilColor(oilId) {
   return colorMap[oilId] || "#666";
 }
 
-// Вспомогательные функции для получения информации о масле
-function getOilShortName(oilId) {
-  const oilMap = {
-    29400883: "5W30",
-    30262242: "5W30 DIESEL",
-    29400905: "5W40",
-    39724113: "75W90",
-  };
-  return oilMap[oilId] || "Unknown";
-}
-
-function getOilColor(oilId) {
-  const colorMap = {
-    29400883: "#4CAF50",
-    30262242: "#2196F3",
-    29400905: "#FF9800",
-    39724113: "#9C27B0",
-  };
-  return colorMap[oilId] || "#666";
-}
-
-// Показать результаты
-document.getElementById("results").style.display = "block";
-
 function showLoading() {
   document.getElementById("loading").style.display = "block";
   document.querySelector(".btn").disabled = true;

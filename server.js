@@ -54,75 +54,6 @@ const getHeaders = () => ({
   authorization: `Bearer ${TOKEN}`,
 });
 
-// Функция для получения списка заказов
-async function getOrders(dateFilter) {
-  try {
-    let allOrders = [];
-    let page = 1;
-    let hasMorePages = true;
-
-    console.log("🔍 Начинаем получение заказов...");
-
-    while (hasMorePages) {
-      // Формируем URL с правильным параметром created_at
-      const params = new URLSearchParams({
-        branches: BRANCH_ID,
-        page: page.toString(),
-        page_size: "100", // Максимум 100 заказов за запрос
-      });
-
-      // Добавляем фильтр даты согласно документации API
-      if (Array.isArray(dateFilter)) {
-        dateFilter.forEach((date) => {
-          params.append("created_at[]", date);
-        });
-      } else {
-        params.append("created_at[]", dateFilter);
-      }
-
-      const url = `${API_BASE}/orders?${params.toString()}`;
-
-      console.log(`📄 Запрашиваем страницу ${page}...`);
-
-      const response = await fetch(url, {
-        method: "GET",
-        headers: getHeaders(),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-
-      // Добавляем заказы с текущей страницы к общему списку
-      allOrders = allOrders.concat(data.data);
-
-      console.log(
-        `✅ Страница ${page}: получено ${data.data.length} заказов (всего: ${allOrders.length})`,
-      );
-      console.log(
-        `📊 Общая информация: страница ${page} из ${data.total_pages}, всего заказов: ${data.count}`,
-      );
-
-      // Проверяем, есть ли еще страницы
-      hasMorePages = page < data.total_pages;
-      page++;
-
-      // Задержка между запросами для избежания rate limiting
-      await new Promise((resolve) => setTimeout(resolve, 100));
-    }
-
-    console.log(
-      `🎯 Завершено! Получено ${allOrders.length} заказов со всех ${page - 1} страниц`,
-    );
-    return allOrders;
-  } catch (error) {
-    console.error("Error fetching orders:", error);
-    throw error;
-  }
-}
-
 // Функция для получения товаров заказа с retry логикой
 async function getOrderItems(orderId, retries = 3) {
   for (let attempt = 1; attempt <= retries; attempt++) {
@@ -307,7 +238,7 @@ io.on("connection", (socket) => {
   });
 });
 
-// Функция для получения списка заказов (исправленная версия)
+// Функция для получения списка заказов
 async function getOrders(dateFilter, socketId = null) {
   try {
     let allOrders = [];
@@ -406,7 +337,13 @@ async function getOrders(dateFilter, socketId = null) {
 // API маршрут для получения данных об использовании масла
 app.get("/api/oil-usage", async (req, res) => {
   try {
-    let { year, month } = req.query;
+    const { year, month } = req.query;
+
+    console.log("🔍 DEBUG - Received params:", {
+      year,
+      month,
+      yearType: typeof year,
+    });
     const socketId = req.headers["socket-id"];
 
     // Проверяем параметры
